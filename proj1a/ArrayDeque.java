@@ -24,14 +24,14 @@ public class ArrayDeque<T> {
     }
 
     private void shrink() {
-        usageRatio = size / items.length;
+        usageRatio = (float) size / items.length;
         if (items.length > 8 && usageRatio < 0.25) {
             int capacity = items.length / RFACTOR;
             T[] temp = (T[]) new Object[capacity];
             System.arraycopy(items, 0, temp, 0, nextLast);
-            System.arraycopy(items, nextFirst, temp, nextFirst - capacity + 2, size - nextLast);
+            System.arraycopy(items, nextFirst, temp, nextFirst - capacity, size + 1 - nextLast);
             items = temp;
-            nextFirst = nextFirst -capacity + 2;
+            nextFirst = nextFirst -capacity;
         }
     }
 
@@ -90,6 +90,7 @@ public class ArrayDeque<T> {
         T first = items[nextFirst];
         items[nextFirst] = null;
         size -= 1;
+        shrink();
         return first;
     }
 
@@ -103,6 +104,7 @@ public class ArrayDeque<T> {
         T last = items[nextLast];
         items[nextLast] = null;
         size -= 1;
+        shrink();
         return last;
     }
 
@@ -141,6 +143,7 @@ public class ArrayDeque<T> {
         deque.removeLast();
         deque.removeFirst();
         deque.removeFirst();
+        deque.removeLast();
         deque.removeLast();
         deque.printDeque();
     }
