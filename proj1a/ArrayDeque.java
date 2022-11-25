@@ -4,6 +4,7 @@ public class ArrayDeque<T> {
     private int nextLast;
     private int size;
     private static final int RFACTOR = 2;
+    private double usageRatio;
 
     /** Create an empty array deque. */
     public ArrayDeque() {
@@ -11,6 +12,7 @@ public class ArrayDeque<T> {
         size = 0;
         nextFirst = 4;
         nextLast = 5;
+        usageRatio = size / items.length;
     }
     /** Adds an item of the type T to the back of the deque. */
     private void resize(int capacity) {
@@ -20,6 +22,19 @@ public class ArrayDeque<T> {
         items = temp;
         nextFirst = nextFirst + size;
     }
+
+    private void shrink() {
+        usageRatio = size / items.length;
+        if (items.length > 8 && usageRatio < 0.25) {
+            int capacity = items.length / RFACTOR;
+            T[] temp = (T[]) new Object[capacity];
+            System.arraycopy(items, 0, temp, 0, nextLast);
+            System.arraycopy(items, nextFirst, temp, nextFirst - capacity + 2, size - nextLast);
+            items = temp;
+            nextFirst = nextFirst -capacity + 2;
+        }
+    }
+
 
     public void addLast(T i) {
         if (size == items.length) {
@@ -109,6 +124,7 @@ public class ArrayDeque<T> {
         return null;
     }
 
+
     public static void main(String[] args) {
         //ArrayDeque<String> A = new ArrayDeque<>();
         ArrayDeque<String> deque = new ArrayDeque<>();
@@ -121,6 +137,11 @@ public class ArrayDeque<T> {
         deque.addLast("g");
         deque.addLast("h");
         deque.addLast("z");
+        deque.removeFirst();
+        deque.removeLast();
+        deque.removeFirst();
+        deque.removeFirst();
+        deque.removeLast();
         deque.printDeque();
     }
 }
