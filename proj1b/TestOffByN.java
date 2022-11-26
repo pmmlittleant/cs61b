@@ -1,3 +1,4 @@
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -11,3 +12,4 @@ public class TestOffByN {
         assertFalse(cc.equalChars('a', 'h'));
     }
 }
+
