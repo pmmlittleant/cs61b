@@ -1,3 +1,4 @@
+/** Implement ArrayDeque API*/
 public class ArrayDeque<T> {
     private T[] items;
     private int nextFirst;
@@ -5,13 +6,17 @@ public class ArrayDeque<T> {
     private int size;
     private static final int RFACTOR = 2;
     private double usageRatio;
+    private static final int SIZE = 8;
+    private static final int F = 3;
+    private static final int L = 4;
+    private static final int BIGSIZE = 16;
 
     /** Create an empty array deque. */
     public ArrayDeque() {
-        items = (T[]) new Object[8];
+        items = (T[]) new Object[SIZE];
         size = 0;
-        nextFirst = 3;
-        nextLast = 4;
+        nextFirst = F;
+        nextLast = L;
         usageRatio = size / items.length;
     }
     /** Adds an item of the type T to the back of the deque. */
@@ -28,7 +33,7 @@ public class ArrayDeque<T> {
 
     private void shrink() {
         usageRatio = (float) size / items.length;
-        if (items.length >= 16 && usageRatio < 0.25) {
+        if (items.length >= BIGSIZE && usageRatio < 0.25) {
             int capacity = items.length / RFACTOR;
             T[] temp = (T[]) new Object[capacity];
             int front = front();
@@ -37,7 +42,7 @@ public class ArrayDeque<T> {
                 System.arraycopy(items, front, temp, 0, size);
             } else {
                 System.arraycopy(items, front, temp, 0, items.length - front);
-                System.arraycopy(items,0, temp, items.length - front, back + 1);
+                System.arraycopy(items, 0, temp, items.length - front, back + 1);
             }
             items = temp;
             nextFirst = items.length - 1;
@@ -85,7 +90,7 @@ public class ArrayDeque<T> {
             }
             System.out.print(items[i] + " ");
         }
-        for (int i = 0; i < nextLast; i ++) {
+        for (int i = 0; i < nextLast; i++) {
             System.out.print(items[i] + " ");
         }
     }
@@ -132,7 +137,8 @@ public class ArrayDeque<T> {
         return i;
     }
 
-    /** Gets the item at the given index where 0 is the front, 1 is the next item and so forth, if no such item exists return null. */
+    /** Gets the item at the given index where 0 is the front, 1 is the next item and so forth,
+     *  if no such item exists return null. */
     public T get(int index) {
         int sofal = 0;
         for (int i = nextFirst + 1; i < items.length; i++) {

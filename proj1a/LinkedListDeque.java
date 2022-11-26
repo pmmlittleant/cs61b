@@ -1,8 +1,8 @@
 public class LinkedListDeque<T> {
     private class Node<T> {
-        public T item;
-        public Node prev;
-        public Node next;
+        private T item;
+        private Node prev;
+        private Node next;
         /** Node constructor */
         public Node(T i, Node p, Node n) {
             item = i;
@@ -18,17 +18,11 @@ public class LinkedListDeque<T> {
 
     /** Create an empty linked list deque*/
     public LinkedListDeque() {
-        sentinel = new Node(null,null, null);
+        sentinel = new Node(null, null, null);
         sentinel.prev = sentinel;
         sentinel.next = sentinel;
 
         size = 0;
-    }
-    public LinkedListDeque(T item) {
-        sentinel = new Node(null, null, null);
-        sentinel.next = new Node(item, sentinel, sentinel);
-        sentinel.prev = sentinel.next;
-        size += 1;
     }
     /** Adds an item of type T to the front of the deque. */
     public void addFirst(T item) {
@@ -84,7 +78,8 @@ public class LinkedListDeque<T> {
         return last;
     }
 
-    /** Gets the item at the given index, where 0 is the front, 1 is the next item and so forth. If no such item exists return null. */
+    /** Gets the item at the given index, where 0 is the front, 1 is the next item and so forth.
+     *  If no such item exists return null. */
     public T get(int index) {
         Node p = sentinel;
         for (int i = 0; i <= index; i++) {
