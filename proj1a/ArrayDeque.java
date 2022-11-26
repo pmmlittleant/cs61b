@@ -11,7 +11,9 @@ public class ArrayDeque<T> {
     private static final int L = 4;
     private static final int BIGSIZE = 16;
 
-    /** Create an empty array deque. */
+    /**
+     * Create an empty array deque.
+     */
     public ArrayDeque() {
         items = (T[]) new Object[SIZE];
         size = 0;
@@ -19,7 +21,10 @@ public class ArrayDeque<T> {
         nextLast = L;
         usageRatio = size / items.length;
     }
-    /** Adds an item of the type T to the back of the deque. */
+
+    /**
+     * Adds an item of the type T to the back of the deque.
+     */
 
     private void resize(int capacity) {
         T[] temp = (T[]) new Object[capacity];
@@ -49,6 +54,7 @@ public class ArrayDeque<T> {
             nextLast = size;
         }
     }
+
     public void addLast(T i) {
         if (size == items.length) {
             resize(size * RFACTOR);
@@ -61,7 +67,10 @@ public class ArrayDeque<T> {
         }
         size += 1;
     }
-    /** Adds an item of the type T to the front of the deque. */
+
+    /**
+     * Adds an item of the type T to the front of the deque.
+     */
     public void addFirst(T i) {
         if (size == items.length) {
             resize(size * RFACTOR);
@@ -74,6 +83,7 @@ public class ArrayDeque<T> {
         }
         size += 1;
     }
+
     public boolean isEmpty() {
         return size == 0;
     }
@@ -110,7 +120,10 @@ public class ArrayDeque<T> {
             return items.length - 1;
         }
     }
-    /** Removes and returns the item at the front of the deque. If no such item exists returns null. */
+
+    /**
+     * Removes and returns the item at the front of the deque. If no such item exists returns null.
+     */
     public T removeFirst() {
         int front = front();
         if (items[front] == null) {
@@ -123,7 +136,10 @@ public class ArrayDeque<T> {
         shrink();
         return first;
     }
-    /** Removes and returns the item at the back of the deque. If no such item exists returns null. */
+
+    /**
+     * Removes and returns the item at the back of the deque. If no such item exists returns null.
+     */
     public T removeLast() {
         int back = back();
         if (items[back] == null) {
@@ -137,21 +153,36 @@ public class ArrayDeque<T> {
         return i;
     }
 
-    /** Gets the item at the given index where 0 is the front, 1 is the next item and so forth,
-     *  if no such item exists return null. */
+    /**
+     * Gets the item at the given index where 0 is the front, 1 is the next item and so forth,
+     * if no such item exists return null.
+     */
     public T get(int index) {
-        int sofal = 0;
-        for (int i = nextFirst + 1; i < items.length; i++) {
-            if (sofal == index || items[i] == null) {
-                return items[i];
+        if (index < size) {
+            int front = front();
+            int back = back();
+            if (front < back) {
+                for (int i = front; i <= back; i++) {
+                    if (index == 0) {
+                        return items[i];
+                    }
+                    index -= 1;
+                }
+            } else {
+                for (int i = front; i < items.length; i++) {
+                    if (index == 0) {
+                        return items[i];
+                    }
+                    index -= 1;
+                }
+                for (int i = 0; i <= back; i++) {
+                    if (index == 0) {
+                        return items[i];
+                    }
+                    index -= 1;
+                }
+
             }
-            sofal += 1;
-        }
-        for (int i = 0; i < nextLast; i++) {
-            if (sofal == index || items[i] == null) {
-                return items[i];
-            }
-            sofal += 1;
         }
         return null;
     }
