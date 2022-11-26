@@ -26,20 +26,24 @@ public class ArrayDeque<T> {
         items = temp;
     }
 
-    /*
     private void shrink() {
         usageRatio = (float) size / items.length;
-        if (items.length > 8 && usageRatio < 0.25) {
+        if (items.length >= 16 && usageRatio < 0.25) {
             int capacity = items.length / RFACTOR;
             T[] temp = (T[]) new Object[capacity];
-            System.arraycopy(items, 0, temp, 0, nextLast);
-            System.arraycopy(items, nextFirst, temp, nextFirst - capacity, size + 1 - nextLast);
+            int front = front();
+            int back = back();
+            if (front < back) {
+                System.arraycopy(items, front, temp, 0, size);
+            } else {
+                System.arraycopy(items, front, temp, 0, items.length - front);
+                System.arraycopy(items,0, temp, items.length - front, back + 1);
+            }
             items = temp;
-            nextFirst = nextFirst -capacity;
+            nextFirst = items.length - 1;
+            nextLast = size;
         }
     }
-    */
-
     public void addLast(T i) {
         if (size == items.length) {
             resize(size * RFACTOR);
@@ -86,14 +90,24 @@ public class ArrayDeque<T> {
         }
     }
 
+    private int front() {
+        if (nextFirst + 1 == items.length) {
+            return 0;
+        } else {
+            return nextFirst + 1;
+        }
+    }
+
+    private int back() {
+        if (nextLast - 1 >= 0) {
+            return nextLast - 1;
+        } else {
+            return items.length - 1;
+        }
+    }
     /** Removes and returns the item at the front of the deque. If no such item exists returns null. */
     public T removeFirst() {
-        int front;
-        if (nextFirst + 1 == items.length) {
-            front = 0;
-        } else {
-            front = nextFirst + 1;
-        }
+        int front = front();
         if (items[front] == null) {
             return null;
         }
@@ -101,16 +115,12 @@ public class ArrayDeque<T> {
         items[front] = null;
         size -= 1;
         nextFirst = front;
+        shrink();
         return first;
     }
     /** Removes and returns the item at the back of the deque. If no such item exists returns null. */
     public T removeLast() {
-        int back;
-        if (nextLast - 1 >= 0) {
-            back = nextLast - 1;
-        } else {
-            back = items.length - 1;
-        }
+        int back = back();
         if (items[back] == null) {
             return null;
         }
@@ -118,6 +128,7 @@ public class ArrayDeque<T> {
         items[back] = null;
         size -= 1;
         nextLast = back;
+        shrink();
         return i;
     }
 
@@ -137,25 +148,5 @@ public class ArrayDeque<T> {
             sofal += 1;
         }
         return null;
-    }
-    public static void main(String[] args) {
-        //ArrayDeque<String> A = new ArrayDeque<>();
-        ArrayDeque<String> deque = new ArrayDeque<>();
-        deque.addLast("a");
-        deque.addLast("b");
-        deque.addFirst("c");
-        deque.addLast("d");
-        deque.addLast("e");
-        deque.addFirst("f");
-        deque.addLast("g");
-        deque.addLast("h");
-        deque.addLast("z");
-        deque.removeFirst();
-        deque.removeLast();
-        deque.removeFirst();
-        deque.removeFirst();
-        deque.removeLast();
-        deque.removeLast();
-        deque.printDeque();
     }
 }
