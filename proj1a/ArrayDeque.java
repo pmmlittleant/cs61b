@@ -15,15 +15,17 @@ public class ArrayDeque<T> {
         usageRatio = size / items.length;
     }
     /** Adds an item of the type T to the back of the deque. */
-    /*
+
     private void resize(int capacity) {
         T[] temp = (T[]) new Object[capacity];
         System.arraycopy(items, 0, temp, 0, nextLast);
         System.arraycopy(items, nextLast, temp, nextLast + size, size - nextLast);
+        if (nextLast != 0) {
+            nextFirst = nextFirst + size;
+        }
         items = temp;
-        nextFirst = nextFirst + size;
     }
-    */
+
     /*
     private void shrink() {
         usageRatio = (float) size / items.length;
@@ -39,6 +41,9 @@ public class ArrayDeque<T> {
     */
 
     public void addLast(T i) {
+        if (size == items.length) {
+            resize(size * RFACTOR);
+        }
         items[nextLast] = i;
         if (nextLast + 1 > items.length - 1) {
             nextLast = 0;
@@ -49,6 +54,9 @@ public class ArrayDeque<T> {
     }
     /** Adds an item of the type T to the front of the deque. */
     public void addFirst(T i) {
+        if (size == items.length) {
+            resize(size * RFACTOR);
+        }
         items[nextFirst] = i;
         if (nextFirst - 1 < 0) {
             nextFirst = items.length - 1;
