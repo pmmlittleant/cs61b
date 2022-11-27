@@ -111,7 +111,7 @@ public class ArrayDeque<T> {
         nextFirst = plusOne(nextFirst);
         items[nextFirst] = null;
         size -= 1;
-        //shrink();
+        shrink();
         return first;
     }
 
