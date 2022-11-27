@@ -6,25 +6,39 @@ public class ArrayDeque<T> {
     private int size;
     private static final int RFACTOR = 2;
     private double usageRatio;
-    private static final int SIZE = 8;
-    private static final int F = 3;
-    private static final int L = 4;
-    private static final int BIGSIZE = 16;
+    private final int CAPACITY = 8;
 
     /**
      * Create an empty array deque.
      */
     public ArrayDeque() {
-        items = (T[]) new Object[SIZE];
+        items = (T[]) new Object[CAPACITY];
         size = 0;
-        nextFirst = F;
-        nextLast = L;
+        nextFirst = 3;
+        nextLast = 4;
         usageRatio = size / items.length;
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    public int size() {
+        return size;
     }
 
     /**
      * Adds an item of the type T to the back of the deque.
      */
+
+    /** Get the last index. */
+    private int minusOne(int index) {
+        return Math.floorMod(index - 1, items.length);
+    }
+
+    private int plusOne(int index) {
+        return Math.floorMod(index + 1, items.length);
+    }
+
 
     private void resize(int capacity) {
         T[] temp = (T[]) new Object[capacity];
@@ -38,11 +52,11 @@ public class ArrayDeque<T> {
 
     private void shrink() {
         usageRatio = (float) size / items.length;
-        if (items.length >= BIGSIZE && usageRatio < 0.25) {
+        if (items.length >= 16 && usageRatio < 0.25) {
             int capacity = items.length / RFACTOR;
             T[] temp = (T[]) new Object[capacity];
-            int front = front();
-            int back = back();
+            int front = plusOne(nextFirst);
+            int back = minusOne(nextLast);
             if (front < back) {
                 System.arraycopy(items, front, temp, 0, size);
             } else {
@@ -54,20 +68,6 @@ public class ArrayDeque<T> {
             nextLast = size;
         }
     }
-
-    public void addLast(T i) {
-        if (size == items.length) {
-            resize(size * RFACTOR);
-        }
-        items[nextLast] = i;
-        if (nextLast + 1 > items.length - 1) {
-            nextLast = 0;
-        } else {
-            nextLast += 1;
-        }
-        size += 1;
-    }
-
     /**
      * Adds an item of the type T to the front of the deque.
      */
@@ -76,81 +76,61 @@ public class ArrayDeque<T> {
             resize(size * RFACTOR);
         }
         items[nextFirst] = i;
-        if (nextFirst - 1 < 0) {
-            nextFirst = items.length - 1;
-        } else {
-            nextFirst -= 1;
-        }
+        nextFirst = minusOne(nextFirst);
         size += 1;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public int size() {
-        return size;
+    public void addLast(T i) {
+        if (size == items.length) {
+            resize(size * RFACTOR);
+        }
+        items[nextLast] = i;
+        nextLast = plusOne(nextLast);
+        size += 1;
     }
 
     public void printDeque() {
-        int first = nextFirst + 1;
-        for (int i = first; i < items.length; i++) {
-            if (items[i] == null) {
-                return;
-            }
+        int first = plusOne(nextFirst);
+        for (int i = first; i != nextLast; i = plusOne(i)) {
             System.out.print(items[i] + " ");
         }
-        for (int i = 0; i < nextLast; i++) {
-            System.out.print(items[i] + " ");
-        }
-    }
-
-    private int front() {
-        if (nextFirst + 1 == items.length) {
-            return 0;
-        } else {
-            return nextFirst + 1;
-        }
-    }
-
-    private int back() {
-        if (nextLast - 1 >= 0) {
-            return nextLast - 1;
-        } else {
-            return items.length - 1;
-        }
+        System.out.println();
     }
 
     /**
      * Removes and returns the item at the front of the deque. If no such item exists returns null.
      */
+    private T getFirst() {
+        return items[plusOne(nextFirst)];
+    }
     public T removeFirst() {
-        int front = front();
-        if (items[front] == null) {
+        T first = getFirst();
+        if (first == null) {
             return null;
         }
-        T first = items[front];
-        items[front] = null;
+        nextFirst = plusOne(nextFirst);
+        items[nextFirst] = null;
         size -= 1;
-        nextFirst = front;
-        shrink();
+        //shrink();
         return first;
     }
 
     /**
      * Removes and returns the item at the back of the deque. If no such item exists returns null.
      */
+    private T getLast() {
+        return items[minusOne(nextLast)];
+    }
     public T removeLast() {
-        int back = back();
-        if (items[back] == null) {
+        T back = getLast();
+        if (back == null) {
             return null;
         }
-        T i = items[back];
-        items[back] = null;
+        nextLast = minusOne(nextLast);
+        items[nextLast] = null;
         size -= 1;
-        nextLast = back;
         shrink();
-        return i;
+        return back;
     }
 
     /**
@@ -158,32 +138,10 @@ public class ArrayDeque<T> {
      * if no such item exists return null.
      */
     public T get(int index) {
-        if (index < size) {
-            int front = front();
-            int back = back();
-            if (front < back) {
-                for (int i = front; i <= back; i++) {
-                    if (index == 0) {
-                        return items[i];
-                    }
-                    index -= 1;
-                }
-            } else {
-                for (int i = front; i < items.length; i++) {
-                    if (index == 0) {
-                        return items[i];
-                    }
-                    index -= 1;
-                }
-                for (int i = 0; i <= back; i++) {
-                    if (index == 0) {
-                        return items[i];
-                    }
-                    index -= 1;
-                }
-
-            }
+        if (index < 0 || index >= size || isEmpty()) {
+            return null;
         }
-        return null;
+        index = Math.floorMod(plusOne(nextFirst) + index, items.length);
+        return items[index];
     }
 }
