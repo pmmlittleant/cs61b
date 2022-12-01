@@ -38,7 +38,7 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     public void enqueue(T x) {
         // TODO: Enqueue the item. Don't forget to increase fillCount and update last.
         if (isFull()) {
-            return;
+            throw new RuntimeException("Ring Buffer Overflow");
         }
         rb[last] = x;
         last = plusone(last);
@@ -46,11 +46,6 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     }
 
 
-    public static void main(String[] args) {
-        for (int i = -1; i < 8; i++) {
-            System.out.println(Math.floorMod(i,7));
-        }
-    }
     /**
      * Dequeue oldest item in the ring buffer. If the buffer is empty, then
      * throw new RuntimeException("Ring buffer underflow"). Exceptions
@@ -70,10 +65,30 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     public T peek() {
         // TODO: Return the first item. None of your instance variables should change.
         if (isEmpty()) {
-            return null;
+            throw new RuntimeException("Ring Buffer Underflow");
         }
         return rb[first];
     }
 
     // TODO: When you get to part 5, implement the needed code to support iteration.
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayRingIter();
+    }
+
+    private class ArrayRingIter implements Iterator<T> {
+        private int pos = first;
+        @Override
+        public boolean hasNext() {
+            return first != last;
+        }
+
+        @Override
+        public T next() {
+            T item= rb[first];
+            pos = plusone(pos);
+            return item;
+        }
+    }
 }
