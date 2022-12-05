@@ -60,7 +60,7 @@ public class WorldGenerator {
             while (true) {
                 Position p = rdLocation();
                 if (world[p.x][p.y].equals(Tileset.WALL)) {
-                    if (world[p.x - 1][p.y].equals(Tileset.FLOOR)) {
+                    if (world[p.x - 1][p.y].equals(Tileset.FLOOR) && world[p.x + 1][p.y].equals(Tileset.NOTHING)) {
                         world[p.x][p.y] = d;
                         break;
                     }
@@ -380,11 +380,11 @@ public class WorldGenerator {
 
 
     public static void main(String[] args) {
-        WorldGenerator w = new WorldGenerator(4323);
+        WorldGenerator WG = new WorldGenerator(384);
 
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
-        ter.renderFrame(w.drawMap());
+        ter.renderFrame(WG.drawMap());
 
     }
 
