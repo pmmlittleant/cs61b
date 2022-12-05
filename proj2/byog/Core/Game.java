@@ -29,14 +29,12 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        // TODO: Fill out this method to run the game using the input passed in,
-        // and return a 2D tile representation of the world that would have been
-        // drawn if the same inputs had been given to playWithKeyboard().
+
         long seed;
-        String first = input.substring(0,1);
+        String first = input.substring(0, 1);
         String substr = input.substring(1);
         if (first.equalsIgnoreCase("N")) {
-            seed = Long.parseLong(substr);
+            seed = extractSeed(substr);
             WorldGenerator wg = new WorldGenerator(seed);
             TETile[][] finalWorldFrame = wg.drawMap();
             return finalWorldFrame;
@@ -45,5 +43,11 @@ public class Game {
 
     }
 
+    private static long extractSeed(String str) {
+        String s = str.replaceAll("\\D+", "");
+        long seed = Long.parseLong(s);
+        System.out.println(seed);
+        return seed;
+    }
 
 }
