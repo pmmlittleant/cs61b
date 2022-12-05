@@ -1,16 +1,20 @@
 package byog.Core;
 
 
+import static org.junit.Assert.*;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
+import org.junit.Test;
+import org.junit.rules.Timeout;
 import sun.security.util.ArrayUtil;
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class WorldGenerator {
     private static final int WIDTH = 80;
-    private static final int HEIGHT = 40;
+    private static final int HEIGHT = 30;
 
     private long seed;
 
@@ -45,10 +49,13 @@ public class WorldGenerator {
 
 
     /**  return a world with random number of rooms with ramdom number of hallways connected to rooms. */
+
+
     public TETile[][] drawMap() {
-        int n = RandomUtils.uniform(random, 15, 35);
-        ArrayList<Room> rms = setNRooms(n);
-        setNHall(rms);
+        ArrayList<Room> rms = setNRooms(14);
+
+        //setNHall(rms);
+
         drawRoom(rms);
         return world;
     }
@@ -60,7 +67,7 @@ public class WorldGenerator {
         while (rms.size() < n) {
             RandomParametor rdp = new RandomParametor("r");
             Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
-            if (NotOverlap(r, rms)) {
+            if (NotOverlap(r, rms) && r.canConTo(rms) ) {
                 rms.add(r);
             }
         }
@@ -70,13 +77,16 @@ public class WorldGenerator {
     /** set random number of random hallways to Rms.*/
     private ArrayList<Room> setNHall(ArrayList<Room> rms) {
         int n = rms.size();
-        int hwn = RandomUtils.uniform(random, n + 10,2 * n);
-        while (rms.size() < n + hwn) {
+
+        while (rms.size() <  n + 2 * RandomUtils.uniform(random, 10,15)) {
             addHall(rms);
         }
         deleteSingleRoom(rms);
+        System.out.println(rms.size());
         return rms;
     }
+
+
 
     /** remove room which has no hallways from room list RMS.
      *  remove block of rooms which is isolated. */
@@ -86,26 +96,15 @@ public class WorldGenerator {
             if (r.rType.equals("r") && r.hallway == 0) {
                 rms.remove(r);
             }
-            if (r.rType.equals("hv") || r.rType.equals("hh")) {
-                Room r1 = r.connectR.get(0);
-                Room r2 = r.connectR.get(1);
-                if (r1.hallway == 1 && r1.rType.equals("r") && r2.hallway == 1 && r2.rType.equals("r")) {
-                    rms.remove(r);
-                    rms.remove(r1);
-                    rms.remove(r2);
-                }
-            }
         }
     }
     /** set a hallway that connects two rooms in list of RMS*/
-    private boolean addHall(ArrayList<Room> rms) {
+    private void addHall(ArrayList<Room> rms) {
         RandomParametor rdp = new RandomParametor();
         Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
         if (isConnectHallway(r, rms)) {
             rms.add(r);
-            return true;
         }
-        return false;
     }
 
     /** Return true if room doesn't overlap with any room in rms.*/
@@ -161,7 +160,7 @@ public class WorldGenerator {
             p = rdLocation();
             if (str.equals("r")) {
                 width = RandomUtils.uniform(random, 5, WIDTH / 6);
-                height = RandomUtils.uniform(random, 4, HEIGHT / 4);
+                height = RandomUtils.uniform(random, 5,HEIGHT / 2);
             }
 
         }
@@ -221,7 +220,7 @@ public class WorldGenerator {
         }
     }
 
-    private static class Room {
+    public static class Room {
         private Position leftBottom;
         private Position rigthTop;
 
@@ -249,10 +248,6 @@ public class WorldGenerator {
             return new Room(lfb, wd, ht, "floor");
         }
 
-
-
-
-
         /**
          * Check if this room is lapped with any room in Room[].
          */
@@ -270,6 +265,11 @@ public class WorldGenerator {
 
         /** Return true if r overlaps this room */
         private boolean isLapped(Room r) {
+            if (r.rType.equals("hh") && rType.equals("hv")) {
+                return false;
+            } else if (r.rType.equals("hv") && rType.equals("hh")) {
+                return false;
+            }
             if (!(this.rigthTop.y <= r.leftBottom.y || this.leftBottom.x >= r.rigthTop.x)
                     && !(r.rigthTop.y <= this.leftBottom.y || r.leftBottom.x >= this.rigthTop.x) ){
                 return true;
@@ -296,9 +296,46 @@ public class WorldGenerator {
             }
         }
 
+        /** return true if this room can connect to one of room in rms*/
+        public boolean canConTo(ArrayList<Room> rms) {
+            if (rms.size() == 0) {
+                return true;
+            }
+            for (Room r: rms) {
+                if (canConnectTo(r)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** Return true if this room can be connected to r. */
+        public boolean canConnectTo(Room r) {
+            int rx = r.rigthTop.x;
+            int ry = r.rigthTop.y;
+            int lx = r.leftBottom.x;
+            int ly = r.leftBottom.y;
+
+            if (lx >= rigthTop.x && ry <= leftBottom.y) {
+                return false;
+            }
+            if (lx >= rigthTop.x && ly >= rigthTop.y) {
+                return false;
+            }
+            if (rx <= leftBottom.x && ly >= rigthTop.y) {
+                return false;
+            }
+            if (rx <= leftBottom.x && ry <= leftBottom.y) {
+                return false;
+            }
+            return true;
+        }
     }
+
+
+
     public static void main(String[] args) {
-        WorldGenerator w = new WorldGenerator(423);
+        WorldGenerator w = new WorldGenerator(75);
 
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
@@ -306,7 +343,7 @@ public class WorldGenerator {
 
     }
 
-    private static class Position {
+    public static class Position {
         private int x;
         private int y;
 
