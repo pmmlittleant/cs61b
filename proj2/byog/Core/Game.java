@@ -8,6 +8,7 @@ public class Game {
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
+    private static TETile[][] savedWorld;
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -31,8 +32,18 @@ public class Game {
         // TODO: Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
+        long seed;
+        String first = input.substring(0,1);
+        String substr = input.substring(1);
+        if (first.equalsIgnoreCase("N")) {
+            seed = Long.parseLong(substr);
+            WorldGenerator wg = new WorldGenerator(seed);
+            TETile[][] finalWorldFrame = wg.drawMap();
+            return finalWorldFrame;
+        }
+        return null;
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
     }
+
+
 }

@@ -120,14 +120,12 @@ public class WorldGenerator {
         private void connect(Room r1, Room r2) {
             switch (CompareLocation(r1,r2)) {
                 case "T" :
-                    System.out.println("T");
                     int w = 1;
                     int h = r2.lb.y - r1.rt.y;
                     Position p = new Position(RandomUtils.uniform(random, r2.lb.x, Math.min(r1.rt.x, r2.rt.x)), r1.rt.y);
                     rooms.add(new Room(p, w, h));
                     break;
                 case "RT" :
-                    System.out.println("RT");
                     // add vertical hallway
                     w = 1;
                     h = r2.lb.y - r1.rt.y + 1;
@@ -141,7 +139,6 @@ public class WorldGenerator {
                     rooms.add(new Room(p, w, h));
                     break;
                 case "R" :
-                    System.out.println("R");
                      w = r2.lb.x - r1.rt.x;
                      h = 1;
                      int x = r1.rt.x;
@@ -152,7 +149,6 @@ public class WorldGenerator {
                     rooms.add(new Room(p, w, h));
                     break;
                 case "RB" :
-                    System.out.println("RB");
                     // add vertical hallway
                     w = 1;
                     h = r1.lb.y - r2.rt.y + 1;
@@ -166,7 +162,6 @@ public class WorldGenerator {
                     break;
 
                 case "B" :
-                    System.out.println("B");
                      h = r1.lb.y - r2.rt.y;
                      w = 1;
                      y = r2.rt.y;
@@ -380,7 +375,7 @@ public class WorldGenerator {
 
 
     public static void main(String[] args) {
-        WorldGenerator WG = new WorldGenerator(384);
+        WorldGenerator WG = new WorldGenerator(2);
 
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
