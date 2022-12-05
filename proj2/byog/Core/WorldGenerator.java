@@ -15,7 +15,7 @@ public class WorldGenerator {
     private Random random;
 
     /** Create a world generator with seed and an initialized world (filled with null). */
-    public WorldGenerator(int sd) {
+    public WorldGenerator(long sd) {
         seed = sd;
         random = new Random(seed);
     }
@@ -60,8 +60,10 @@ public class WorldGenerator {
             while (true) {
                 Position p = rdLocation();
                 if (world[p.x][p.y].equals(Tileset.WALL)) {
-                    world[p.x][p.y] = d;
-                    break;
+                    if (world[p.x - 1][p.y].equals(Tileset.FLOOR)) {
+                        world[p.x][p.y] = d;
+                        break;
+                    }
                 }
             }
         }
@@ -378,7 +380,7 @@ public class WorldGenerator {
 
 
     public static void main(String[] args) {
-        WorldGenerator w = new WorldGenerator(3);
+        WorldGenerator w = new WorldGenerator(4323);
 
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
