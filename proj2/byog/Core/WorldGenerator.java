@@ -73,18 +73,53 @@ public class WorldGenerator {
             // sort room in the order of room's lb.x from left to right.
             rooms.sort(Room.roomComparator());
             for (int i = 0; i < rooms.size() - 1; i++) {
-                Room currenRoom = rooms.get(i);
+                Room curRoom = rooms.get(i);
                 Room nextRoom = rooms.get(i + 1);
-                connect(currenRoom, nextRoom);
+                connect(curRoom, nextRoom);
+
             }
         }
 
-
+        /** Connect r1 r2 according their location.*/
         private void connect(Room r1, Room r2) {
+            switch (CompareLocation(r1,r2)) {
+                case "T" :
+                    System.out.println("T");
+                    break;
+                case "RT" :
+                    System.out.println("RT");
+                    break;
+                case "R" :
+                    System.out.println("R");
+                    break;
+                case "RB" :
+                    System.out.println("RB");
+                    break;
 
+                case "B" :
+                    System.out.println("B");
+                    break;
+
+
+            }
         }
 
-
+        /** return a string represents the r2's relative location to r1.*/
+        private String CompareLocation(Room r1, Room r2) {
+            if (r1.Top(r2)) {
+                return "T";
+            }
+            if (r1.righTop(r2)) {
+                return "RT";
+            }
+            if (r1.Right(r2)) {
+                return "R";
+            }
+            if (r1.rightBottom(r2)) {
+                return "RB";
+            }
+            return "B";
+        }
 
         /** add room's floor and wall into the world. */
         public void drawRoom() {
