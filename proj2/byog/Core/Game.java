@@ -8,7 +8,7 @@ public class Game {
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
-    private static TETile[][] savedWorld;
+    private TETile[][] savedWorld;
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -30,17 +30,26 @@ public class Game {
      */
     public TETile[][] playWithInputString(String input) {
 
-        long seed;
         String first = input.substring(0, 1);
+        if (first.equalsIgnoreCase("L")) {
+            if (savedWorld != null) {
+                return savedWorld;
+            }
+            System.exit(0);
+        }
         String substr = input.substring(1);
+        long seed = extractSeed(substr);
+        WorldGenerator wg = new WorldGenerator(seed);
+        TETile[][] finalWorldFrame = wg.drawMap();
         if (first.equalsIgnoreCase("N")) {
-            seed = extractSeed(substr);
-            WorldGenerator wg = new WorldGenerator(seed);
-            TETile[][] finalWorldFrame = wg.drawMap();
+            if (input.endsWith(":Q")) {
+                Game g = new Game();
+                g.savedWorld = finalWorldFrame;
+            }
             return finalWorldFrame;
         }
+        System.exit(0);
         return null;
-
     }
 
     private static long extractSeed(String str) {
