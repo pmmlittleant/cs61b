@@ -1,16 +1,10 @@
 package byog.Core;
 
-
-import static org.junit.Assert.*;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
-import org.junit.Test;
-import org.junit.rules.Timeout;
-import sun.security.util.ArrayUtil;
 
 import java.util.*;
-import java.util.concurrent.TimeoutException;
 
 public class WorldGenerator {
     private static final int WIDTH = 80;
@@ -40,10 +34,12 @@ public class WorldGenerator {
     /**  return a world with random number of rooms with ramdom number of hallways connected to rooms. */
     public TETile[][] drawMap() {
         World w = new World();
-        int n = RandomUtils.uniform(random, 10, 15);
-        w.setRooms(10);
+        int n = RandomUtils.uniform(random, 20, 30);
+        w.setRooms(n);
         w.setHallways();
         w.drawRoom();
+        w.setDoor();
+        w.setPlayer();
         return w.world;
     }
 
@@ -57,12 +53,38 @@ public class WorldGenerator {
             rooms = new ArrayList<>();
         }
 
+        /** add a door tile to the world.
+         *  the door must be on the wall. */
+        private void setDoor() {
+            TETile d = Tileset.LOCKED_DOOR;
+            while (true) {
+                Position p = rdLocation();
+                if (world[p.x][p.y].equals(Tileset.WALL)) {
+                    world[p.x][p.y] = d;
+                    break;
+                }
+            }
+        }
+        /** add a player tile to the world.
+         *  the player must be on the floor. */
+
+        private void setPlayer() {
+            TETile player = TETile.colorVariant(Tileset.PLAYER, 23,46,90, random);
+            while (true) {
+                Position p = rdLocation();
+                if (world[p.x][p.y].equals(Tileset.FLOOR)) {
+                    world[p.x][p.y] = player;
+                    break;
+                }
+            }
+        }
+
 
         /** Set n rooms that not overlap with each others in a room list. */
         private void setRooms(int n) {
             while (rooms.size() < n) {
-                RandomParametor rdp = new RandomParametor("r");
-                Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
+                RandomParametor rdp = new RandomParametor();
+                Room r = new Room(rdp.p, rdp.width, rdp.height);
                 if (r.wthinWorld() && r.Notoverlap(rooms)) {
                     rooms.add(r);
                 }
@@ -72,7 +94,8 @@ public class WorldGenerator {
         private void setHallways() {
             // sort room in the order of room's lb.x from left to right.
             rooms.sort(Room.roomComparator());
-            for (int i = 0; i < rooms.size() - 1; i++) {
+            int n = rooms.size();
+            for (int i = 0; i < n - 1; i++) {
                 Room curRoom = rooms.get(i);
                 Room nextRoom = rooms.get(i + 1);
                 connect(curRoom, nextRoom);
@@ -80,29 +103,79 @@ public class WorldGenerator {
             }
         }
 
+
+        /** add room's floor and wall into the world. */
+        public void drawRoom() {
+            for (Room r : rooms) {
+                addRoomFloor(r);
+            }
+
+            for (Room r: rooms) { addWall(r);}
+
+
+        }
         /** Connect r1 r2 according their location.*/
         private void connect(Room r1, Room r2) {
             switch (CompareLocation(r1,r2)) {
                 case "T" :
                     System.out.println("T");
+                    int w = 1;
+                    int h = r2.lb.y - r1.rt.y;
+                    Position p = new Position(RandomUtils.uniform(random, r2.lb.x, Math.min(r1.rt.x, r2.rt.x)), r1.rt.y);
+                    rooms.add(new Room(p, w, h));
                     break;
                 case "RT" :
                     System.out.println("RT");
+                    // add vertical hallway
+                    w = 1;
+                    h = r2.lb.y - r1.rt.y + 1;
+                    p = new Position(r1.rt.x - 1, r1.rt.y);
+                    rooms.add(new Room(p, w, h));
+
+                    // add horizontal hallway.
+                    w = r2.lb.x - r1.rt.x + 1;
+                    h = 1;
+                    p = new Position(r1.rt.x - 1, r2.lb.y + 1);
+                    rooms.add(new Room(p, w, h));
                     break;
                 case "R" :
                     System.out.println("R");
+                     w = r2.lb.x - r1.rt.x;
+                     h = 1;
+                     int x = r1.rt.x;
+                     int upper = Math.min(r1.rt.y, r2.rt.y);
+                     int lower = Math.max(r1.lb.y, r2.lb.y);
+                     int y = RandomUtils.uniform(random, lower, upper);
+                     p = new Position(x, y);
+                    rooms.add(new Room(p, w, h));
                     break;
                 case "RB" :
                     System.out.println("RB");
+                    // add vertical hallway
+                    w = 1;
+                    h = r1.lb.y - r2.rt.y + 1;
+                    p = new Position(r1.rt.x - 1, r2.rt.y -1);
+                    rooms.add(new Room(p, w, h));
+
+                    // add horizontal hallway
+                    w = r2.lb.x - r1.rt.x + 1;
+                    h = 1;
+                    rooms.add(new Room(p, w, h));
                     break;
 
                 case "B" :
                     System.out.println("B");
+                     h = r1.lb.y - r2.rt.y;
+                     w = 1;
+                     y = r2.rt.y;
+                     x = RandomUtils.uniform(random, r2.lb.x, Math.min(r1.rt.x, r2.rt.x));
+                     p = new Position(x, y);
+                    rooms.add(new Room(p, w, h));
                     break;
-
-
             }
         }
+
+
 
         /** return a string represents the r2's relative location to r1.*/
         private String CompareLocation(Room r1, Room r2) {
@@ -121,18 +194,6 @@ public class WorldGenerator {
             return "B";
         }
 
-        /** add room's floor and wall into the world. */
-        public void drawRoom() {
-            for (Room r : rooms) {
-                addRoomFloor(r);
-            }
-            /**
-            for (Room r: rooms) {
-                addWall(r);
-            }
-             */
-
-        }
 
         public void addRoomFloor(Room r) {
             // draw floor
@@ -173,51 +234,18 @@ public class WorldGenerator {
 
     }
 
-
-
-
-    /** set random number of random hallways to Rms.*/
-
-
-    /** remove room which has no hallways from room list RMS.
-     *  remove block of rooms which is isolated. */
-    /** set a hallway that connects two rooms in list of RMS*/
-
-    /** Return true if room doesn't overlap with any room in rms.*/
-
-    /**
-     *  return true if hallway R connects two rooms without overlapping with other rooms in rooms.
-     * */
-
     /** room random parameters*/
     private class RandomParametor {
         private int width;
         private int height;
-        private String roomtype;
         private Position p;
 
         /** create random horizontal or vertical hallway's parameter. */
         public RandomParametor() {
             p = rdLocation();
-            double p = RandomUtils.uniform(random) - 0.5;
-            if (p < 0) {
-                width = RandomUtils.uniform(random, 2, WIDTH);
-                height = 3;
-                roomtype = "hh";
-            }
-            if (p > 0) {
-                width = 3;
-                height = RandomUtils.uniform(random, 2, HEIGHT);
-                roomtype = "hv";
-            }
-        }
-        public RandomParametor(String str) {
-            roomtype = str;
-            p = rdLocation();
-            if (str.equals("r")) {
-                width = RandomUtils.uniform(random, 5, WIDTH / 6);
-                height = RandomUtils.uniform(random, 5,HEIGHT / 2);
-            }
+            width = RandomUtils.uniform(random, 4, WIDTH / 7);
+            height = RandomUtils.uniform(random, 2,HEIGHT / 3);
+
 
         }
     }
@@ -232,23 +260,17 @@ public class WorldGenerator {
         return new Position(x, y);
     }
 
-    /** create a single room in the world.
-     *  according to room's type S.
-     *  draw at position room's leftBottom position. */
-
-    /** Add rectangular tiles. */
-
     public static class Room{
         private Position lb;
         private Position rt;
 
-        private String rType;
+
         private ArrayList<Room> connectR;
         private int width;
         private int height;
 
-        public Room(Position p, int w, int h, String type) {
-            rType = type;
+        public Room(Position p, int w, int h) {
+
             width = w;
             height = h;
             lb = new Position(p.x, p.y);
@@ -356,7 +378,7 @@ public class WorldGenerator {
 
 
     public static void main(String[] args) {
-        WorldGenerator w = new WorldGenerator(75);
+        WorldGenerator w = new WorldGenerator(3);
 
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
