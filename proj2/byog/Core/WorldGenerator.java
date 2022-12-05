@@ -20,23 +20,12 @@ public class WorldGenerator {
 
     private Random random;
 
-    private TETile[][] world;
-
     /** Create a world generator with seed and an initialized world (filled with null). */
     public WorldGenerator(int sd) {
         seed = sd;
         random = new Random(seed);
-        world = new TETile[WIDTH][HEIGHT];
-        initializeTile(world);
     }
 
-    private static void initializeTile(TETile[][] world) {
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                world[x][y] = Tileset.NOTHING;
-            }
-        }
-    }
 
     /** random Number of rooms, hallways.
      *  random Locations of rooms and hallways.
@@ -49,89 +38,121 @@ public class WorldGenerator {
 
 
     /**  return a world with random number of rooms with ramdom number of hallways connected to rooms. */
-
-
     public TETile[][] drawMap() {
-        ArrayList<Room> rms = setNRooms(14);
-
-        //setNHall(rms);
-
-        drawRoom(rms);
-        return world;
+        World w = new World();
+        int n = RandomUtils.uniform(random, 10, 15);
+        w.setRooms(10);
+        w.setHallways();
+        w.drawRoom();
+        return w.world;
     }
 
-    /** return a list of rooms with random location and random width and height.
-     *  rooms don't overlap with each other.*/
-    private ArrayList<Room> setNRooms(int n) {
-        ArrayList<Room> rms = new ArrayList<>();
-        while (rms.size() < n) {
-            RandomParametor rdp = new RandomParametor("r");
-            Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
-            if (NotOverlap(r, rms) && r.canConTo(rms) ) {
-                rms.add(r);
+    private class World {
+        private TETile[][] world;
+
+        private ArrayList<Room> rooms;
+        private World() {
+            world = new TETile[WIDTH][HEIGHT];
+            initializeTile(world);
+            rooms = new ArrayList<>();
+        }
+
+
+        /** Set n rooms that not overlap with each others in a room list. */
+        private void setRooms(int n) {
+            while (rooms.size() < n) {
+                RandomParametor rdp = new RandomParametor("r");
+                Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
+                if (r.wthinWorld() && r.Notoverlap(rooms)) {
+                    rooms.add(r);
+                }
             }
         }
-        return rms;
+
+        private void setHallways() {
+            // sort room in the order of room's lb.x from left to right.
+            rooms.sort(Room.roomComparator());
+            for (int i = 0; i < rooms.size() - 1; i++) {
+                Room currenRoom = rooms.get(i);
+                Room nextRoom = rooms.get(i + 1);
+                connect(currenRoom, nextRoom);
+            }
+        }
+
+
+        private void connect(Room r1, Room r2) {
+
+        }
+
+
+
+        /** add room's floor and wall into the world. */
+        public void drawRoom() {
+            for (Room r : rooms) {
+                addRoomFloor(r);
+            }
+            /**
+            for (Room r: rooms) {
+                addWall(r);
+            }
+             */
+
+        }
+
+        public void addRoomFloor(Room r) {
+            // draw floor
+            TETile tile = Tileset.FLOOR;
+            int lx = r.lb.x;
+            int ly  = r.lb.y;
+            for (int x = lx; x < lx + r.width; x++) {
+                for (int y = ly; y < ly + r.height; y++) {
+                    world[x][y] = tile;
+                }
+            }
+
+        }
+        private void addWall(Room r) {
+            TETile tile = TETile.colorVariant(Tileset.WALL, 33,41, 20, random);
+            int lx = r.lb.x - 1;
+            int ly = r.lb.y - 1;
+            int ry = r.rt.y + 1;
+            int rx = r.rt.x + 1;
+            for (int x = lx; x < rx; x++) {
+                for (int y = ly; y < ry; y++) {
+                    if (world[x][y].equals(Tileset.FLOOR)) {
+                        continue;
+                    }
+                    world[x][y] = tile;
+                }
+            }
+        }
+
+        private void initializeTile(TETile[][] world) {
+            for (int x = 0; x < WIDTH; x += 1) {
+                for (int y = 0; y < HEIGHT; y += 1) {
+                    world[x][y] = Tileset.NOTHING;
+                }
+            }
+        }
+
+
     }
+
+
+
 
     /** set random number of random hallways to Rms.*/
-    private ArrayList<Room> setNHall(ArrayList<Room> rms) {
-        int n = rms.size();
-
-        while (rms.size() <  n + 2 * RandomUtils.uniform(random, 10,15)) {
-            addHall(rms);
-        }
-        deleteSingleRoom(rms);
-        System.out.println(rms.size());
-        return rms;
-    }
-
 
 
     /** remove room which has no hallways from room list RMS.
      *  remove block of rooms which is isolated. */
-    private void deleteSingleRoom(ArrayList<Room> rms) {
-        ArrayList<Room> cpyrms = new ArrayList<>(rms);
-        for (Room r: cpyrms) {
-            if (r.rType.equals("r") && r.hallway == 0) {
-                rms.remove(r);
-            }
-        }
-    }
     /** set a hallway that connects two rooms in list of RMS*/
-    private void addHall(ArrayList<Room> rms) {
-        RandomParametor rdp = new RandomParametor();
-        Room r = new Room(rdp.p, rdp.width, rdp.height, rdp.roomtype);
-        if (isConnectHallway(r, rms)) {
-            rms.add(r);
-        }
-    }
 
     /** Return true if room doesn't overlap with any room in rms.*/
-    private boolean NotOverlap(Room r, ArrayList<Room> rms) {
-        return r.leftBottom.x > 0 && r.rigthTop.x <= WIDTH && r.rigthTop.y <= HEIGHT && !r.isLapped(rms);
-    }
 
     /**
      *  return true if hallway R connects two rooms without overlapping with other rooms in rooms.
      * */
-    private boolean isConnectHallway(Room r, ArrayList<Room> rooms) {
-        for (Room rm: rooms) {
-            r.connect(rm);
-        }
-        if (r.connectR.size() == 2) {
-            ArrayList<Room> rms = new ArrayList<>(rooms);
-            rms.remove(r.connectR.get(0));
-            rms.remove(r.connectR.get(1));
-            if (NotOverlap(r, rms)) {
-                r.connectR.get(0).hallway += 1;
-                r.connectR.get(1).hallway += 1;
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     /** room random parameters*/
     private class RandomParametor {
@@ -168,168 +189,133 @@ public class WorldGenerator {
 
 
 
-    public void drawRoom(ArrayList<Room> rms) {
-        for (Room r : rms) {
-            addRoom(r, r.rType);
-        }
-    }
 
     /** Create a random position within WIDTH and HEIGHT */
     private Position rdLocation() {
-        int x = RandomUtils.uniform(random, WIDTH);
-        int y = RandomUtils.uniform(random, HEIGHT);
+        int x = RandomUtils.uniform(random, 1, WIDTH - 1);
+        int y = RandomUtils.uniform(random, 1, HEIGHT - 1);
         return new Position(x, y);
     }
 
     /** create a single room in the world.
      *  according to room's type S.
      *  draw at position room's leftBottom position. */
-    public void addRoom(Room r, String s) {
-        // draw wall
-        Position lefbot = r.leftBottom;
-        Position rigtop = r.rigthTop;
-        addRectangle(lefbot, rigtop, "wall");
-
-        // draw floor inside walls
-        Position lefbotfloor = new Position(lefbot.x + 1, lefbot.y + 1);
-        Position rigtopfloor = new Position(rigtop.x - 1, rigtop.y - 1);
-        addRectangle(lefbotfloor,rigtopfloor, "floor");
-
-        if (s.equals("hv")) {
-            lefbotfloor = new Position(lefbot.x + 1, lefbot.y);
-            rigtopfloor = new Position(rigtop.x - 1, rigtop.y);
-            addRectangle(lefbotfloor,rigtopfloor, "floor");
-        }
-        if (s.equals("hh")) {
-            lefbotfloor = new Position(lefbot.x, lefbot.y + 1);
-            rigtopfloor = new Position(rigtop.x, rigtop.y - 1);
-            addRectangle(lefbotfloor,rigtopfloor, "floor");
-        }
-    }
 
     /** Add rectangular tiles. */
-    private void addRectangle(Position lb, Position rt, String str) {
-        TETile tile = TETile.colorVariant(Tileset.WALL, 23, 56, 31, random);
-        if (str.equals("floor")) {
-            tile = Tileset.FLOOR;
-        }
-        for (int x = lb.x; x < rt.x; x++) {
-            for (int y = lb.y; y < rt.y; y++) {
-                world[x][y] = tile;
-            }
-        }
-    }
 
-    public static class Room {
-        private Position leftBottom;
-        private Position rigthTop;
+    public static class Room{
+        private Position lb;
+        private Position rt;
 
         private String rType;
         private ArrayList<Room> connectR;
         private int width;
         private int height;
 
-        private int hallway;
-        public Room(Position lb, int w, int h, String type) {
-            hallway = 0;
+        public Room(Position p, int w, int h, String type) {
             rType = type;
             width = w;
             height = h;
-            leftBottom = new Position(lb.x, lb.y);
-            rigthTop = new Position(leftBottom.x + w, leftBottom.y + h);
+            lb = new Position(p.x, p.y);
+            rt = new Position(lb.x + w, lb.y + h);
             connectR = new ArrayList<>();
         }
 
-        /** Return room's inner floor.*/
-        public Room innerFloor() {
-            Position lfb = new Position(leftBottom.x + 1, leftBottom.y + 1);
-            int wd = width - 2;
-            int ht = height - 2;
-            return new Room(lfb, wd, ht, "floor");
-        }
-
         /**
-         * Check if this room is lapped with any room in Room[].
+         * return true if this room doesn't overlap with any room in Rooms List.
          */
-        public boolean isLapped(ArrayList<Room> rooms) {
-            if (rooms.size() == 0) {
-                return false;
-            }
-            for (Room r : rooms) {
-                if (isLapped(r)) {
-                    return true;
+        private boolean Notoverlap(ArrayList<Room> rooms) {
+            for (Room r: rooms) {
+                if (!Notoverlap(r)) {
+                    return false;
                 }
-            }
-            return false;
-        }
-
-        /** Return true if r overlaps this room */
-        private boolean isLapped(Room r) {
-            if (r.rType.equals("hh") && rType.equals("hv")) {
-                return false;
-            } else if (r.rType.equals("hv") && rType.equals("hh")) {
-                return false;
-            }
-            if (!(this.rigthTop.y <= r.leftBottom.y || this.leftBottom.x >= r.rigthTop.x)
-                    && !(r.rigthTop.y <= this.leftBottom.y || r.leftBottom.x >= this.rigthTop.x) ){
-                return true;
-            }
-            return false;
-        }
-
-        private void connect(Room r) {
-            Room floor = r.innerFloor();
-            if (this.rType.equals("hh")) {
-                if (this.rigthTop.x == floor.leftBottom.x || this.leftBottom.x == floor.rigthTop.x) {
-                    if (rigthTop.y <= floor.rigthTop.y && leftBottom.y >= floor.leftBottom.y) {
-                        connectR.add(r);
-                        return;
-                    }
-                }
-            }
-            if (this.rType.equals("hv")) {
-                if (this.leftBottom.y == floor.rigthTop.y || this.rigthTop.y == floor.leftBottom.y) {
-                    if (rigthTop.x <= floor.rigthTop.x && leftBottom.x >= floor.leftBottom.x) {
-                        connectR.add(r);
-                    }
-                }
-            }
-        }
-
-        /** return true if this room can connect to one of room in rms*/
-        public boolean canConTo(ArrayList<Room> rms) {
-            if (rms.size() == 0) {
-                return true;
-            }
-            for (Room r: rms) {
-                if (canConnectTo(r)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /** Return true if this room can be connected to r. */
-        public boolean canConnectTo(Room r) {
-            int rx = r.rigthTop.x;
-            int ry = r.rigthTop.y;
-            int lx = r.leftBottom.x;
-            int ly = r.leftBottom.y;
-
-            if (lx >= rigthTop.x && ry <= leftBottom.y) {
-                return false;
-            }
-            if (lx >= rigthTop.x && ly >= rigthTop.y) {
-                return false;
-            }
-            if (rx <= leftBottom.x && ly >= rigthTop.y) {
-                return false;
-            }
-            if (rx <= leftBottom.x && ry <= leftBottom.y) {
-                return false;
             }
             return true;
         }
+
+
+        /** Return true if this room doesn't overlap r */
+        private boolean Notoverlap(Room r) {
+            // r is at top of this room.
+            if (r.lb.y > this.rt.y + 1) {
+                return true;
+            }
+            // r is below this room.
+            if (r.rt.y < this.lb.y - 1) {
+                return true;
+            }
+            // r is at this room's right.
+            if (r.lb.x > this.rt.x + + 1) {
+                return true;
+            }
+            // r is at this room's left.
+            if (r.rt.x < this.lb.x - 1) {
+                return true;
+            }
+            return false;
+        }
+        /** return true if this room is within the world bound. */
+        private boolean wthinWorld() {
+            if (rt.x < WIDTH - 1 && rt.y < HEIGHT - 1) {
+                return true;
+            }
+            return false;
+        }
+
+        /** return true if room is at the rightTop of this room. */
+        private boolean righTop(Room rm) {
+            if (rm.lb.x >= this.rt.x && rm.lb.y >= this.rt.y) {
+                return true;
+            }
+            return false;
+        }
+        /** return true if room is at the leftBottom of this room. */
+        private boolean rightBottom(Room rm) {
+            if (rm.lb.x >= this.rt.x && rm.rt.y <= this.lb.y) {
+                return true;
+            }
+            return false;
+        }
+
+        /** return true if room is at bottom of this room. */
+        private boolean Bottom(Room rm) {
+            if (rm.rt.y < this.lb.y && !this.rightBottom(rm)) {
+                return true;
+            }
+            return false;
+        }
+        /** return true if room is at the top of this room. */
+        private boolean Top(Room rm) {
+            if (rm.lb.y > this.rt.y && !this.righTop(rm)) {
+                return true;
+            }
+            return false;
+        }
+
+        /** return ture if room is at the right of this room. */
+        private boolean Right(Room rm) {
+            if (!Top(rm) && ! righTop(rm) && !rightBottom(rm) && !Bottom(rm)) {
+                return true;
+            }
+            return false;
+        }
+
+
+        private static class RoomComparator implements Comparator<Room> {
+
+            /** return a negative value if r1 is at left of r2.
+             *  return zero if r1
+             *  return a positive value if r1 is at the right of r2.
+             * */
+            @Override
+            public int compare(Room r1, Room r2) {
+                return r1.lb.x - r2.lb.x;
+            }
+        }
+        public static Comparator<Room> roomComparator() {
+            return new RoomComparator();
+        }
+
     }
 
 
