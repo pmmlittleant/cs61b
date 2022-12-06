@@ -32,36 +32,15 @@ public class Game {
     public TETile[][] playWithInputString(String input) {
         String first = input.substring(0, 1);
         String substr = input.substring(1);
-        if (first.equalsIgnoreCase("l")) {
-            In in = new In("seed.txt");
-            if (in.exists() && !in.isEmpty()) {
-                long seed = in.readLong();
-                System.out.println(seed);
-                WorldGenerator wg = new WorldGenerator(seed);
-                TETile[][] finalWorldFrame = wg.drawMap();
-                return finalWorldFrame;
-            } else {
-                System.exit(0);
-            }
-        }
 
-        if (first.equalsIgnoreCase("N")) {
+        if (first.equalsIgnoreCase("N") && substr.endsWith("s")) {
             long seed = extractSeed(substr);
             WorldGenerator wg = new WorldGenerator(seed);
             TETile[][] finalWorldFrame = wg.drawMap();
-            if (input.endsWith(":Q")) {
-                Out out = new Out("seed.txt");
-                out.println(seed);
-                out.close();
-                System.exit(0);
-            }
-            System.out.println(seed);
             return finalWorldFrame;
         }
-
         System.exit(0);
         return null;
-
     }
 
     private static long extractSeed(String str) {
