@@ -40,6 +40,9 @@ public class Game {
         }
         if (first == 'l') {
             finalWorldFrame = getSavedWorld();
+            if (finalWorldFrame == null) {
+                System.exit(0);
+            }
             playGame(input.substring(1), finalWorldFrame);
         }
         if (first == 'n') {
