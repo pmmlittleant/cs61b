@@ -11,13 +11,14 @@ public class WorldGenerator {
     private static final int HEIGHT = 30;
 
     private long seed;
-
+    public Map<String, Integer> pl;
     private Random random;
 
     /** Create a world generator with seed and an initialized world (filled with null). */
     public WorldGenerator(long sd) {
         seed = sd;
         random = new Random(seed);
+        pl = new HashMap<>();
     }
 
 
@@ -76,6 +77,8 @@ public class WorldGenerator {
                 Position p = rdLocation();
                 if (world[p.x][p.y].equals(Tileset.FLOOR)) {
                     world[p.x][p.y] = player;
+                    pl.put("x", p.x);
+                    pl.put("y", p.y);
                     break;
                 }
             }

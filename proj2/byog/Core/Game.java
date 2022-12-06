@@ -2,15 +2,21 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Out;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
-
+    public static Map<String, Integer> player = new HashMap<>();
+    public static TETile[][] finalWorldFrame;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
@@ -30,24 +36,74 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
+        input.toLowerCase();
         String first = input.substring(0, 1);
-        String substr = input.substring(1);
-
-        if (first.equalsIgnoreCase("N") && substr.endsWith("s")) {
-            long seed = extractSeed(substr);
+        if (first.equals("n")) {
+            int indexS = input.indexOf("s");
+            long seed = Long.parseLong(input.substring(1, indexS));
             WorldGenerator wg = new WorldGenerator(seed);
-            TETile[][] finalWorldFrame = wg.drawMap();
+            finalWorldFrame = wg.drawMap();
+            player = wg.pl;
+            if (input.endsWith(":q")) {
+                String operation = input.substring(indexS + 1, input.indexOf(":"));
+                playGame(operation);
+                saveWorld();
+            }
             return finalWorldFrame;
+
         }
-        System.exit(0);
-        return null;
+
+    return null;
     }
 
-    private static long extractSeed(String str) {
-        String s = str.replaceAll("\\D+", "");
-        long seed = Long.parseLong(s);
-
-        return seed;
+    /**save game*/
+    private static void saveWorld() {
+        File f = new File("./world.txt");
     }
 
+
+    /** play the game with operation string. */
+    public void playGame(String operation) {
+        if (operation.length() == 0) {
+            return;
+        }
+        for (int i = 0; i < operation.length(); i++) {
+            char move = operation.charAt(i);
+            int x = player.get("x");
+            int y = player.get("y");
+            TETile floor = Tileset.FLOOR;
+            switch (move) {
+                case 'w':
+                    if (finalWorldFrame[x][y + 1].equals(floor)) {
+                        movePlayer(0, 1);
+                        break;
+                    }
+                case 's':
+                    if (finalWorldFrame[x][y - 1].equals(floor)) {
+                        movePlayer(0, -1);
+                        break;
+                    }
+                case 'a':
+                    if (finalWorldFrame[x - 1][y].equals(floor)) {
+                        movePlayer(-1, 0);
+                        break;
+                    }
+                case 'd':
+                    if (finalWorldFrame[x + 1][y].equals(floor)) {
+                        movePlayer(1, 0);
+                        break;
+                    }
+            }
+        }
+    }
+
+    /** change player's px, py by x, y and change finalWorld's tile type.*/
+    private void movePlayer(int x, int y) {
+        int px = player.get("x");
+        int py = player.get("y");
+        finalWorldFrame[px][py] = Tileset.FLOOR;
+        finalWorldFrame[px + x][py + y] = Tileset.PLAYER;
+        player.put("x", px + x);
+        player.put("y", py + y);
+    }
 }
