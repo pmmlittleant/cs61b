@@ -37,30 +37,23 @@ public class Game {
      */
     public TETile[][] playWithInputString(String input) {
         input.toLowerCase();
-        String first = input.substring(0, 1);
-        if (first.equals("q")) {
+        TETile[][] finalWorldFrame = null;
+        char first = input.charAt(0);
+        if (first == 'q') {
             System.exit(0);
         }
-        if (first.equals("l")) {
+        if (first == 'l') {
             finalWorldFrame = null;
         }
-        if (first.equals("n")) {
+        if (first == 'n') {
             int indexS = input.indexOf("s");
             long seed = Long.parseLong(input.substring(1, indexS));
             WorldGenerator wg = new WorldGenerator(seed);
             finalWorldFrame = wg.drawMap();
-            player = wg.pl;
-            String operation = input.substring(indexS + 1);
-            playGame(operation);
-            if (input.endsWith(":q")) {
-                operation = input.substring(indexS + 1, input.indexOf(":"));
-                playGame(operation);
-                saveWorld();
-            }
-            return finalWorldFrame;
-
+            //player = wg.pl;
+            //String operation = input.substring(indexS + 1);
+            //playGame(operation);
         }
-
     return finalWorldFrame;
     }
 
