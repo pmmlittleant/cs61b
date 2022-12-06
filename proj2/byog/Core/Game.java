@@ -16,7 +16,7 @@ public class Game {
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
     public static Map<String, Integer> player = new HashMap<>();
-    public static TETile[][] finalWorldFrame;
+    public static TETile[][] finalWorldFrame = null;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
@@ -38,14 +38,22 @@ public class Game {
     public TETile[][] playWithInputString(String input) {
         input.toLowerCase();
         String first = input.substring(0, 1);
+        if (first.equals("q")) {
+            System.exit(0);
+        }
+        if (first.equals("l")) {
+            finalWorldFrame = null;
+        }
         if (first.equals("n")) {
             int indexS = input.indexOf("s");
             long seed = Long.parseLong(input.substring(1, indexS));
             WorldGenerator wg = new WorldGenerator(seed);
             finalWorldFrame = wg.drawMap();
             player = wg.pl;
+            String operation = input.substring(indexS + 1);
+            playGame(operation);
             if (input.endsWith(":q")) {
-                String operation = input.substring(indexS + 1, input.indexOf(":"));
+                operation = input.substring(indexS + 1, input.indexOf(":"));
                 playGame(operation);
                 saveWorld();
             }
@@ -53,12 +61,13 @@ public class Game {
 
         }
 
-    return null;
+    return finalWorldFrame;
     }
 
     /**save game*/
     private static void saveWorld() {
         File f = new File("./world.txt");
+        return;
     }
 
 
@@ -93,6 +102,7 @@ public class Game {
                         movePlayer(1, 0);
                         break;
                     }
+                default:
             }
         }
     }

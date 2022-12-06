@@ -174,6 +174,7 @@ public class WorldGenerator {
                     p = new Position(x, y);
                     rooms.add(new Room(p, w, h));
                     break;
+                default:
             }
         }
 
