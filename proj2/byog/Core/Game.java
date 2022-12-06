@@ -2,13 +2,14 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Out;
 
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
-    private TETile[][] savedWorld;
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -29,33 +30,44 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-
         String first = input.substring(0, 1);
-        if (first.equalsIgnoreCase("L")) {
-            if (savedWorld != null) {
-                return savedWorld;
-            }
-            System.exit(0);
-        }
         String substr = input.substring(1);
-        long seed = extractSeed(substr);
-        WorldGenerator wg = new WorldGenerator(seed);
-        TETile[][] finalWorldFrame = wg.drawMap();
-        if (first.equalsIgnoreCase("N")) {
-            if (input.endsWith(":Q")) {
-                Game g = new Game();
-                g.savedWorld = finalWorldFrame;
+        if (first.equalsIgnoreCase("l")) {
+            In in = new In("seed.txt");
+            if (in.exists() && !in.isEmpty()) {
+                long seed = in.readLong();
+                System.out.println(seed);
+                WorldGenerator wg = new WorldGenerator(seed);
+                TETile[][] finalWorldFrame = wg.drawMap();
+                return finalWorldFrame;
+            } else {
+                System.exit(0);
             }
+        }
+
+        if (first.equalsIgnoreCase("N")) {
+            long seed = extractSeed(substr);
+            WorldGenerator wg = new WorldGenerator(seed);
+            TETile[][] finalWorldFrame = wg.drawMap();
+            if (input.endsWith(":Q")) {
+                Out out = new Out("seed.txt");
+                out.println(seed);
+                out.close();
+                System.exit(0);
+            }
+            System.out.println(seed);
             return finalWorldFrame;
         }
+
         System.exit(0);
         return null;
+
     }
 
     private static long extractSeed(String str) {
         String s = str.replaceAll("\\D+", "");
         long seed = Long.parseLong(s);
-        System.out.println(seed);
+
         return seed;
     }
 
