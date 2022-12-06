@@ -4,21 +4,22 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class WorldGenerator {
+public class WorldGenerator implements Serializable {
     private static final int WIDTH = 80;
     private static final int HEIGHT = 30;
 
-    private long seed;
-    public Map<String, Integer> pl;
+    public long seed;
+    public Position pl;
     private Random random;
 
     /** Create a world generator with seed and an initialized world (filled with null). */
     public WorldGenerator(long sd) {
         seed = sd;
         random = new Random(seed);
-        pl = new HashMap<>();
+        pl = new Position(0,0);
     }
 
 
@@ -77,8 +78,8 @@ public class WorldGenerator {
                 Position p = rdLocation();
                 if (world[p.x][p.y].equals(Tileset.FLOOR)) {
                     world[p.x][p.y] = player;
-                    pl.put("x", p.x);
-                    pl.put("y", p.y);
+                    pl.x = p.x;
+                    pl.y = p.y;
                     break;
                 }
             }
@@ -389,9 +390,9 @@ public class WorldGenerator {
 
     }
 
-    public static class Position {
-        private int x;
-        private int y;
+    public static class Position implements Serializable {
+        public int x;
+        public int y;
 
         public Position(int x, int y) {
             this.x = x;

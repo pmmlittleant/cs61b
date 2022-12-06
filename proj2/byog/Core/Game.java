@@ -1,12 +1,13 @@
 package byog.Core;
 
+import byog.SaveDemo.World;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Out;
 
-import java.io.File;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +16,8 @@ public class Game {
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
-    public static Map<String, Integer> player = new HashMap<>();
-    public static TETile[][] finalWorldFrame = null;
+    public static WorldGenerator.Position player;
+
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
@@ -43,57 +44,111 @@ public class Game {
             System.exit(0);
         }
         if (first == 'l') {
-            finalWorldFrame = null;
+            WorldGenerator wg = getSavedWorld();
+            finalWorldFrame = wg.drawMap();
+            finalWorldFrame[wg.pl.x][wg.pl.y] = Tileset.FLOOR;
+            finalWorldFrame[player.x][player.y] = Tileset.PLAYER;
+            playGame(wg, input.substring(1), finalWorldFrame);
         }
         if (first == 'n') {
             int indexS = input.indexOf("s");
             long seed = Long.parseLong(input.substring(1, indexS));
             WorldGenerator wg = new WorldGenerator(seed);
-            finalWorldFrame = wg.drawMap();
-            //player = wg.pl;
-            //String operation = input.substring(indexS + 1);
-            //playGame(operation);
+            finalWorldFrame = newGame(wg, input.substring(indexS + 1));
         }
     return finalWorldFrame;
     }
 
     /**save game*/
-    private static void saveWorld() {
+    private static void saveWorld(long seed, WorldGenerator.Position p) {
         File f = new File("./world.txt");
-        return;
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(seed);
+            os.writeObject(p);
+            os.close();
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+    }
+
+    private WorldGenerator getSavedWorld() {
+        WorldGenerator wg;
+        File f = new File("world.txt");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                long seed = (long) os.readObject();
+                player = (WorldGenerator.Position) os.readObject();
+                os.close();
+                wg = new WorldGenerator(seed);
+                return wg;
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+        return null;
     }
 
 
-    /** play the game with operation string. */
-    public void playGame(String operation) {
-        if (operation.length() == 0) {
-            return;
+    private TETile[][] newGame(WorldGenerator wg, String input) {
+        TETile[][] world = wg.drawMap();
+        player = wg.pl;
+        if (input.length() == 0) {
+            return world;
         }
+        playGame(wg, input, world);
+        return world;
+    }
+
+    /** play the game with operation string. */
+    public void playGame(WorldGenerator wg, String operation, TETile[][] world) {
         for (int i = 0; i < operation.length(); i++) {
             char move = operation.charAt(i);
-            int x = player.get("x");
-            int y = player.get("y");
+            int x = player.x;
+            int y = player.y;
             TETile floor = Tileset.FLOOR;
             switch (move) {
                 case 'w':
-                    if (finalWorldFrame[x][y + 1].equals(floor)) {
-                        movePlayer(0, 1);
+                    if (world[x][y + 1].equals(floor)) {
+                        movePlayer(0, 1, world);
                         break;
                     }
                 case 's':
-                    if (finalWorldFrame[x][y - 1].equals(floor)) {
-                        movePlayer(0, -1);
+                    if (world[x][y - 1].equals(floor)) {
+                        movePlayer(0, -1, world);
                         break;
                     }
                 case 'a':
-                    if (finalWorldFrame[x - 1][y].equals(floor)) {
-                        movePlayer(-1, 0);
+                    if (world[x - 1][y].equals(floor)) {
+                        movePlayer(-1, 0, world);
                         break;
                     }
                 case 'd':
-                    if (finalWorldFrame[x + 1][y].equals(floor)) {
-                        movePlayer(1, 0);
+                    if (world[x + 1][y].equals(floor)) {
+                        movePlayer(1, 0, world);
                         break;
+                    }
+                case ':':
+                    if (operation.endsWith(":q")) {
+                        saveWorld(wg.seed, player);
+                        return;
                     }
                 default:
             }
@@ -101,12 +156,12 @@ public class Game {
     }
 
     /** change player's px, py by x, y and change finalWorld's tile type.*/
-    private void movePlayer(int x, int y) {
-        int px = player.get("x");
-        int py = player.get("y");
-        finalWorldFrame[px][py] = Tileset.FLOOR;
-        finalWorldFrame[px + x][py + y] = Tileset.PLAYER;
-        player.put("x", px + x);
-        player.put("y", py + y);
+    private void movePlayer(int x, int y, TETile[][] world) {
+        int px = player.x;
+        int py = player.y;
+        world[px][py] = Tileset.FLOOR;
+        world[px + x][py + y] = Tileset.PLAYER;
+        player.x = px + x;
+        player.y = py + y;
     }
 }
