@@ -7,12 +7,12 @@ import byog.TileEngine.Tileset;
 import java.io.Serializable;
 import java.util.*;
 
-public class WorldGenerator implements Serializable {
+ class WorldGenerator implements Serializable {
     private static final int WIDTH = 80;
     private static final int HEIGHT = 30;
 
-    public long seed;
-    public Position pl;
+    private long seed;
+    protected Position pl;
     private Random random;
 
     /** Create a world generator with seed and an initialized world (filled with null). */
@@ -199,7 +199,7 @@ public class WorldGenerator implements Serializable {
         }
 
 
-        public void addRoomFloor(Room r) {
+        private void addRoomFloor(Room r) {
             // draw floor
             TETile tile = Tileset.FLOOR;
             int lx = r.lb.x;
@@ -264,7 +264,7 @@ public class WorldGenerator implements Serializable {
         return new Position(x, y);
     }
 
-    public static class Room {
+    private static class Room {
         private Position lb;
         private Position rt;
 
