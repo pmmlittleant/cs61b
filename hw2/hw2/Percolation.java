@@ -2,8 +2,6 @@ package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-import java.util.HashSet;
-
 public class Percolation {
     private boolean[][] sites;
     private int openSites;
@@ -13,7 +11,6 @@ public class Percolation {
     private final int N;
     private int topSite;
     private int bottomSite;
-    private boolean percolate;
 
     /** create N by N grid, with all sites initially blocked. */
     public Percolation(int N) {
@@ -22,7 +19,6 @@ public class Percolation {
         }
         this.N = N;
         sites = new boolean[N][N];
-        percolate = false;
         openSites  = 0;
         topSite = N * N;
         bottomSite = N * N + 1;
@@ -78,7 +74,7 @@ public class Percolation {
             UFbackWash.union(d1, d2);
         }
         if (row - 1 >= 0 && isOpen(row - 1, col)) {
-            d2 = xyTo1D(row - 1 , col);
+            d2 = xyTo1D(row - 1, col);
             UF.union(d1, d2);
             UFbackWash.union(d1, d2);
 
@@ -98,28 +94,5 @@ public class Percolation {
     /**translate site (row, col) to number d */
     private int xyTo1D(int r, int c) {
         return r * N + c;
-    }
-
-
-
-    public static void main(String[] args) {
-        Percolation p = new Percolation(5);
-        p.open(3, 4);
-        p.open(2, 4);
-        p.open(2,2);
-        p.open(2,3);
-        p.open(0, 2);
-        System.out.println(p.isFull(2,2));
-        p.open(1,2);
-        System.out.println(p.isFull(2,2));
-        System.out.println(p.numberOfOpenSites());
-        System.out.println(p.percolates());
-        p.open(4,4);
-        System.out.println(p.percolates());
-        p.open(4,0);
-        System.out.println(p.isFull(4,0));
-        p.open(4,2);
-        System.out.println(p.isFull(4,2));
-
     }
 }

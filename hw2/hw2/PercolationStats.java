@@ -3,8 +3,6 @@ package hw2;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.introcs.StdStats;
 
-import java.util.ArrayList;
-
 public class PercolationStats {
     private final int T;
     private double[] xts;
@@ -49,7 +47,7 @@ public class PercolationStats {
     }
 
     /** high endpoint of 95% confidence interval.*/
-    public double condifenceHigh() {
+    public double confidenceHigh() {
         double u = mean();
         double stddev = stddev();
         double high = u + 1.96 * stddev / Math.sqrt(T);
