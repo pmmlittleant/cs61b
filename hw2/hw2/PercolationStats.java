@@ -9,7 +9,7 @@ public class PercolationStats {
 
     /** perform T independent experiments on an N-by-N grid.*/
     public PercolationStats(int N, int T, PercolationFactory pf) {
-        if (N < 0 || T < 0) {
+        if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException();
         }
         this.T = T;
@@ -22,7 +22,8 @@ public class PercolationStats {
                 int col = StdRandom.uniform(0, N);
                 perc.open(row, col);
             }
-            xts[i] = perc.numberOfOpenSites() / (N * N);
+            double threshold = (double) perc.numberOfOpenSites() / (N * N);
+            xts[i] = threshold;
             i++;
         }
     }
@@ -53,5 +54,4 @@ public class PercolationStats {
         double high = u + 1.96 * stddev / Math.sqrt(T);
         return high;
     }
-
 }
