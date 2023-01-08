@@ -67,7 +67,6 @@ public class TestSimpleOomage {
 
         assertTrue(OomageTestUtility.haveNiceHashCodeSpread(oomages, 10));
     }
-
     /** Calls tests for SimpleOomage. */
     public static void main(String[] args) {
         jh61b.junit.textui.runClasses(TestSimpleOomage.class);
