@@ -128,6 +128,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
            return null;
        }
        root = removeHelper(key, root);
+       size -= 1;
        return v;
     }
 
@@ -136,25 +137,25 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
             return null;
         }
         int cmp = key.compareTo(p.key);
-        if (cmp == 0) {
-            if (p.left == null) {
-                p = p.right;
-            } else if (p.right == null) {
-                p = p.left;
-            } else {
-                Node pred = findPredecessor(p);
-                K newk = pred.key;
-                V newV = pred.value;
-                remove(newk);
-                p.key = newk;
-                p.value = newV;
-            }
-            return p;
-        }
         if (cmp > 0) {
             p.right = removeHelper(key, p.right);
-        } else {
+        }
+        else if (cmp < 0) {
             p.left = removeHelper(key, p.left);
+        }
+        else {
+            if (p.left == null) {
+                return p.right;
+            }
+            if (p.right == null) {
+                return p.left;
+            }
+            Node pred = findPredecessor(p);
+            K newk = pred.key;
+            V newV = pred.value;
+            remove(newk);
+            p.key = newk;
+            p.value = newV;
         }
         return p;
     }
