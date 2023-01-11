@@ -145,8 +145,6 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
                 Node pred = findPredecessor(p);
                 K newk = pred.key;
                 V newV = pred.value;
-                System.out.println(newk);
-                System.out.println(newV);
                 remove(newk);
                 p.key = newk;
                 p.value = newV;

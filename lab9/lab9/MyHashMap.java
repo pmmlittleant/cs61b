@@ -63,13 +63,15 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     /* Associates the specified value with the specified key in this map. */
     @Override
     public void put(K key, V value) {
+        int keyIndx = hash(key);
         if (get(key) == null) {
+            buckets[keyIndx].put(key, value);
             size += 1;
             if (loadFactor() > MAX_LF) {
                 resize(buckets.length * 2);
             }
+            return;
           }
-        int keyIndx = hash(key);
         buckets[keyIndx].put(key, value);
     }
 
@@ -83,7 +85,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
                 buckets[hash(key)].put(key, map.get(key));
             }
         }
-        size = s + 1;
+        size = s;
     }
 
     /* Returns the number of key-value mappings in this map. */
