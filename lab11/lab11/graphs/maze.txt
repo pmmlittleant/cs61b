@@ -5,5 +5,5 @@ rseed = 4
 MazeType = POPEN_SOLVABLE
 %MazeType = BLANK
 
-pOpen = 0.48
+pOpen = 0.45
 DRAW_DELAY_MS = 30
