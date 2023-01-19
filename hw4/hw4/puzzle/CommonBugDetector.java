@@ -29,19 +29,23 @@ public class CommonBugDetector {
             return 1;
         }
 
+
         @Override
         public Iterable<WorldState> neighbors() {
+            List<Character> ls = new ArrayList<>();
             switch (name) {
-                case('s'): return createWorldStateList(List.of('a', 'x'));
-                case('a'): return createWorldStateList(List.of('b'));
-                case('b'): return createWorldStateList(List.of('c'));
-                case('c'): return createWorldStateList(List.of('d'));
-                case('d'): return createWorldStateList(List.of('e'));
-                case('e'): return createWorldStateList(List.of('g'));
-                case('x'): return createWorldStateList(List.of('c'));
+                case('s'): ls.add('a');ls.add('x');return createWorldStateList(ls);
+                case('a'): ls.add('b');return createWorldStateList(ls);
+                case('b'): ls.add('c');return createWorldStateList(ls);
+                case('c'): ls.add('d');return createWorldStateList(ls);
+                case('d'): ls.add('e');return createWorldStateList(ls);
+                case('e'): ls.add('g');return createWorldStateList(ls);
+                case('x'): ls.add('c');return createWorldStateList(ls);
                 default: return null;
             }
         }
+
+
 
         private static List<WorldState> createWorldStateList(List<Character> lc) {
             List<WorldState> lws = new ArrayList<>();
@@ -79,6 +83,7 @@ public class CommonBugDetector {
 
         AlphabetEasyPuzzle aep = new AlphabetEasyPuzzle('a');
         Solver s3 = new Solver(aep);
+        s3.solution();
         System.out.println("TODO: Print out the number of total things ever"
                            + " enqueued in your MinPQ and compare to the comments.");
         // if you print out the total number of items enqueued by s3
