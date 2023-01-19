@@ -72,11 +72,11 @@ public class Board implements WorldState{
     }
 
     private int toX(int v) {
-        return v - 1 / size;
+        return (v - 1)/ size;
     }
 
     private int toY(int v) {
-        return v  - 1 % size;
+        return (v  - 1) % size;
     }
 
     public boolean equals(Object y) {
@@ -90,6 +90,9 @@ public class Board implements WorldState{
             return false;
         }
         Board by = (Board) y;
+        if (by.size != this.size) {
+            return false;
+        }
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (by.tiles[i][j] != tiles[i][j]) {
@@ -117,7 +120,7 @@ public class Board implements WorldState{
 
     @Override
     public int estimatedDistanceToGoal() {
-        return hamming();
+        return manhattan();
     }
 
     /**
