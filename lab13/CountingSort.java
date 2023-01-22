@@ -78,6 +78,18 @@ public class CountingSort {
         for (int i : arr) {
             counts[i + min]++;
         }
+        // when we're dealing with ints, we can just put each value
+        // count number of times into the new array
+        int[] sorted = new int[arr.length];
+        int pos = 0;
+        for (int i = 0; i < counts.length; i++) {
+            for (int j = 0; j < counts[i]; j++, pos++) {
+                sorted[pos] = i - min;
+            }
+        }
+        return sorted;
+
+        /*** MORE PROPER IMPLEMENTATION.
         //start position
         int[] starts = new int[max + min + 1];
         int pos = 0;
@@ -92,7 +104,7 @@ public class CountingSort {
             sorted[place] = item;
             starts[item + min] += 1;
         }
-
-        return sorted;
+         return sorted;
+         */
     }
 }
