@@ -18,18 +18,17 @@ public class RadixSort {
      * @return String[] the sorted array
      */
     public static String[] sort(String[] asciis) {
-        int maxLen = Integer.MIN_VALUE;
+        int maxLen = 0;
         //find the max length of string in array asciis
         for (String s : asciis) {
             maxLen = maxLen > s.length() ? maxLen : s.length();
         }
-        String[] sort;
+        String[] res = Arrays.copyOf(asciis, asciis.length);
         for (int d = 0; d < maxLen; d++) {
-            sort = sortHelperLSD(asciis, d);
-            asciis = sort;
+            sortHelperLSD(res, d);
         }
 
-        return asciis;
+        return res;
     }
 
     /**
@@ -38,7 +37,7 @@ public class RadixSort {
      * @param asciis Input array of Strings
      * @param index The position to sort the Strings on.
      */
-    private static String[] sortHelperLSD(String[] asciis, int index) {
+    private static void sortHelperLSD(String[] asciis, int index) {
         int[] counts = new int[257];
         //gather counts of value in index of s.
         for (String s : asciis) {
@@ -58,7 +57,10 @@ public class RadixSort {
             sorted[place] = s;
             starts[c] += 1;
         }
-        return sorted;
+        for (int i = 0; i < asciis.length; i++) {
+            asciis[i] = sorted[i];
+        }
+
     }
 
     private static int charOrminChar(String s, int index) {
@@ -95,5 +97,6 @@ public class RadixSort {
         System.out.println();
         String s = "abc";
         System.out.println(charOrminChar(s, 0));
+
     }
 }

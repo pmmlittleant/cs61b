@@ -66,17 +66,16 @@ public class CountingSort {
      * @param arr int array that will be sorted
      */
     public static int[] betterCountingSort(int[] arr) {
-        int min = 0, max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
         //find max and min.
         for (int i : arr) {
             max = max > i ? max : i;
             min = min < i ? min : i;
         }
-        min = min == 0 ? 0 : -min;
         //gather all counts for each value.
-        int[] counts = new int[max + min + 1];
+        int[] counts = new int[max - min + 1];
         for (int i : arr) {
-            counts[i + min]++;
+            counts[i - min]++;
         }
         // when we're dealing with ints, we can just put each value
         // count number of times into the new array
@@ -84,7 +83,7 @@ public class CountingSort {
         int pos = 0;
         for (int i = 0; i < counts.length; i++) {
             for (int j = 0; j < counts[i]; j++, pos++) {
-                sorted[pos] = i - min;
+                sorted[pos] = i + min;
             }
         }
         return sorted;
