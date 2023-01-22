@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * Class for doing Radix sort
  *
@@ -16,8 +18,18 @@ public class RadixSort {
      * @return String[] the sorted array
      */
     public static String[] sort(String[] asciis) {
-        // TODO: Implement LSD Sort
-        return null;
+        int maxLen = Integer.MIN_VALUE;
+        //find the max length of string in array asciis
+        for (String s : asciis) {
+            maxLen = maxLen > s.length() ? maxLen : s.length();
+        }
+        String[] sort;
+        for (int d = 0; d < maxLen; d++) {
+            sort = sortHelperLSD(asciis, d);
+            asciis = sort;
+        }
+
+        return asciis;
     }
 
     /**
@@ -26,9 +38,29 @@ public class RadixSort {
      * @param asciis Input array of Strings
      * @param index The position to sort the Strings on.
      */
-    private static void sortHelperLSD(String[] asciis, int index) {
-        // Optional LSD helper method for required LSD radix sort
-        return;
+    private static String[] sortHelperLSD(String[] asciis, int index) {
+        int[] counts = new int[256];
+        //gather counts of value in index of s.
+        for (String s : asciis) {
+            int i = s.length() - index - 1;
+            int c = i < 0 ? 0 : s.charAt(i);
+            counts[c]++;
+        }
+        int[] starts = new int[256];
+        int pos = 0;
+        for (int i = 0; i < starts.length; i++) {
+            starts[i] = pos;
+            pos += counts[i];
+        }
+        String[] sorted = new String[asciis.length];
+        for (String s : asciis) {
+            int i = s.length() - index - 1;
+            int c = i < 0 ? 0 : s.charAt(i);
+            int place = starts[c];
+            sorted[place] = s;
+            starts[c] += 1;
+        }
+        return sorted;
     }
 
     /**
@@ -44,5 +76,18 @@ public class RadixSort {
     private static void sortHelperMSD(String[] asciis, int start, int end, int index) {
         // Optional MSD helper method for optional MSD radix sort
         return;
+    }
+
+
+    public static void main(String[] args) {
+        String[] a = new String[]{"baa", "aaa", "acb", "c", "abd"};
+        String[] sort = sort(a);
+        for (String s : a) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        for (String s : sort) {
+            System.out.print(s + " ");
+        }
     }
 }

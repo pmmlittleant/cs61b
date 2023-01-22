@@ -5,6 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import lab9.BSTMap;
 
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Tests by Brendan Hu, Spring 2015, revised for 2018 by Josh Hug
  */
@@ -86,6 +90,61 @@ public class TestBSTMap {
         assertTrue(b.get("hi") != null);
     }
 
+    @Test
+    public void KeySetTest() {
+        BSTMap<String, Integer> a = new BSTMap<>();
+        Set<String> set1 = a.keySet();
+        assertTrue(set1.isEmpty());
+        a.put("apple", 2);
+        a.put("killer", 10);
+        a.put("bat", 12);
+        Set<String> set2 = a.keySet();
+        assertTrue(set2.contains("bat"));
+        assertTrue(set2.contains("apple"));
+        assertTrue(set2.contains("killer"));
+    }
+
+    @Test
+    public void removeKeyTest() {
+        BSTMap<String, Integer> a = new BSTMap<>();
+        a.put("apple", 2);
+        a.put("killer", 10);
+        a.put("date", 13);
+        a.put("bat", 12);
+        int v = a.remove("date");
+        assertEquals(13, v);
+        assertTrue(!a.containsKey("date"));
+        assertEquals(null, a.remove("kill"));
+        int v2 = a.remove("apple");
+        assertEquals(2, v2);
+    }
+
+    @Test
+    public void removeKeyValueTest() {
+        BSTMap<String, Integer> a = new BSTMap<>();
+        a.put("apple", 2);
+        a.put("killer", 10);
+        a.put("date", 13);
+        a.put("bat", 12);
+        int v = a.remove("date", 13);
+        assertEquals(13, v);
+        assertTrue(!a.containsKey("date"));
+        assertEquals(null, a.remove("kill", 10));
+        assertEquals(null, a.remove("killer", 2));
+
+    }
+
+    @Test
+    public void IteratorTest() {
+        BSTMap<String, Integer> a = new BSTMap<>();
+        a.put("apple", 2);
+        a.put("killer", 10);
+        a.put("date", 13);
+        a.put("bat", 12);
+        for (String s : a) {
+            System.out.println(s);
+        }
+    }
     public static void main(String[] args) {
         jh61b.junit.TestRunner.runTests(TestBSTMap.class);
     }

@@ -1,5 +1,7 @@
 package lab11.graphs;
 
+import com.sun.corba.se.impl.ior.OldJIDLObjectKeyTemplate;
+
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -49,7 +51,6 @@ public class MazeAStarPath extends MazeExplorer {
 
     /** Performs an A star search from vertex s. */
     private void astar(int s) {
-        marked[s] = true;
         while (!unvisited.isEmpty()) {
             int v = findMinimumUnmarked();
             marked[v] = true;

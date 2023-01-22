@@ -14,7 +14,7 @@ public class Solver {
         private WorldState world;
         private int m;      // number of moves from initial world state.
         private searchNode parent;  // the previous world state.
-        private int priority;       // the priority of this worldState.
+
         public searchNode(WorldState w, int m, searchNode p) {
             this.world = w;
             this.m = m;
