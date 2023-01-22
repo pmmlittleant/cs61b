@@ -39,14 +39,13 @@ public class RadixSort {
      * @param index The position to sort the Strings on.
      */
     private static String[] sortHelperLSD(String[] asciis, int index) {
-        int[] counts = new int[256];
+        int[] counts = new int[257];
         //gather counts of value in index of s.
         for (String s : asciis) {
-            int i = s.length() - index - 1;
-            int c = i < 0 ? 0 : s.charAt(i);
+            int c = charOrminChar(s, index);
             counts[c]++;
         }
-        int[] starts = new int[256];
+        int[] starts = new int[257];
         int pos = 0;
         for (int i = 0; i < starts.length; i++) {
             starts[i] = pos;
@@ -54,8 +53,7 @@ public class RadixSort {
         }
         String[] sorted = new String[asciis.length];
         for (String s : asciis) {
-            int i = s.length() - index - 1;
-            int c = i < 0 ? 0 : s.charAt(i);
+            int c = charOrminChar(s, index);
             int place = starts[c];
             sorted[place] = s;
             starts[c] += 1;
@@ -63,6 +61,11 @@ public class RadixSort {
         return sorted;
     }
 
+    private static int charOrminChar(String s, int index) {
+        int i = s.length() - index - 1;
+        int c = i < 0 ? 0 : (int) s.charAt(i);
+        return c;
+    }
     /**
      * MSD radix sort helper function that recursively calls itself to achieve the sorted array.
      * Destructive method that changes the passed in array, asciis.
@@ -80,7 +83,7 @@ public class RadixSort {
 
 
     public static void main(String[] args) {
-        String[] a = new String[]{"baa", "aaa", "acb", "c", "abd"};
+        String[] a = new String[]{"aaaa", "dog", "cat", "aat" };
         String[] sort = sort(a);
         for (String s : a) {
             System.out.print(s + " ");
@@ -89,5 +92,8 @@ public class RadixSort {
         for (String s : sort) {
             System.out.print(s + " ");
         }
+        System.out.println();
+        String s = "abc";
+        System.out.println(charOrminChar(s, 0));
     }
 }
